@@ -1,4 +1,4 @@
-# FootballBetting
+# Football Betting Model
 This is my implementation of a football betting algorithm. The alhorithm is not done and is currently under work (whenever I get time/motivation), however, the parameter estimates via the likelihood function is completed. 
 
 The main sources for the development of this implementation has been:
