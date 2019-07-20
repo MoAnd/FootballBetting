@@ -1,15 +1,15 @@
 ## Housekeeping ----
 rm(list = ls()) # Clear all
 graphics.off() # Close all
-# ctrl + l # Clears console
+cat("\014") # Clears console
 
 ## Libraries ----
-library(tidyverse)
-library(Rsolnp)
-library(lubridate)
+if (!require("pacman")) install.packages("pacman")
+
+pacman::p_load(tidyverse, Rsolnp, lubridate)
 
 ## Import data ----
-E0 <- read_csv("~/Downloads/E0.csv") %>% mutate(Date = dmy(Date))
+E0 <- read_csv("E0.csv") %>% mutate(Date = dmy(Date))
 #first20 <- E0 %>% select(Date, HomeTeam, AwayTeam, FTHG, FTAG); first20 <- first20[1:20,]
 
 
