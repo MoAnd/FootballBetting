@@ -5,7 +5,6 @@ cat("\014") # Clears console
 
 ## Libraries ----
 if (!require("pacman")) install.packages("pacman")
-
 pacman::p_load(tidyverse, Rsolnp, lubridate)
 
 ## Import data ----
@@ -22,11 +21,7 @@ for(i in E0$HomeTeam[1:40]){
 }
 teams <- sort(teams)
 
-matches <- list("Arsenal" = tibble(), "Bournemouth" = tibble(), "Brighton" = tibble(), "Burnley" = tibble(), "Chelsea" = tibble(),
-                "Crystal Palace" = tibble(), "Everton" = tibble(), "Huddersfield" = tibble(), "Leicester" = tibble(), 
-                "Liverpool" = tibble(), "Man City" = tibble(), "Man United" = tibble(), "Newcastle" = tibble(), "Southampton" = tibble(), 
-                "Stoke" = tibble(), "Swansea" = tibble(),  "Tottenham" = tibble(), "Watford" = tibble(), "West Brom" = tibble(),
-                "West Ham" = tibble())
+matches <- list()
 
 for(i in teams){
   matches[[i]] <- full_join(E0 %>% filter(HomeTeam == i), E0 %>% filter(AwayTeam == i)) %>% arrange(Date)
@@ -34,11 +29,7 @@ for(i in teams){
 
 
 ## Win/lose ----
-winlose <- list("Arsenal" = c(), "Bournemouth" = c(), "Brighton" = c(), "Burnley" = c(), "Chelsea" = c(),
-                "Crystal Palace" = c(), "Everton" = c(), "Huddersfield" = c(), "Leicester" = c(), 
-                "Liverpool" = c(), "Man City" = c(), "Man United" = c(), "Newcastle" = c(), "Southampton" = c(), 
-                "Stoke" = c(), "Swansea" = c(),  "Tottenham" = c(), "Watford" = c(), "West Brom" = c(),
-                "West Ham" = c())
+winlose <- list()
 
 for(i in teams){
   for(j in 1:nrow(E0)){
@@ -106,7 +97,7 @@ theta <- c(alpha, beta, rho, gam)
 #   return(-L)
 # }
 
-equal <- function(theta, dat) {
+equal <- function(theta, teams) {
   sum(theta[1:20])
 }
 
@@ -186,13 +177,16 @@ football_prob <- function (x, y, alpha_home, alpha_away, beta_home, beta_away, g
 # football_prob(1, 1, 0.7118135, 0.8869163, 0.8580254, 1.3931570, 1.326699e+00, 3.104326e-06)
 
 played = 0
-wait = 70
-bankroll = 600
+wait = 50
+bankroll = 500
 wagering_size = 50
 odds_placed = 0
 lost = 0
 
-b = c(0.05,0.7)
+b = c(0.05,0.65)
+
+result_dyna <- solnp(pars = theta, fun = football_lik_dyna, eqfun = equal, 
+                     eqB = 20, LB = rep(0, 42), UB = rep(100,42), dat = E0[1:wait,])
 
 for(i in 1:380){
   
@@ -205,7 +199,7 @@ for(i in 1:380){
   
   if(played > wait){
     
-    if(i %% 5 == 0){
+    if(i %% 10 == 0){
       result_dyna <- solnp(pars = theta, fun = football_lik_dyna, eqfun = equal, 
                            eqB = 20, LB = rep(0, 42), UB = rep(100,42), dat = E0[1:i,])
       
