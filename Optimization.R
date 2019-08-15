@@ -52,16 +52,12 @@ colnames(teamdf) = c("Team", "Alpha", "Beta")
 
 # Optimizing the likelihood function --------------------------------------
 
-time_start <- 106   # Chose your starting point
+time_start <- 60   # Chose your starting point
 
 time_end <- Match_data$Time[nrow(Match_data)] %>% ceiling()
+# time_end <- 100
 
 for (i in time_start:time_end) {
-  
-  alpha <- rep(c(0.85, 1.15), length(teams)/2)
-  beta <- rnorm(length(teams), mean = 1, sd = 0.2)
-  rho <- 0.01
-  gam <- 1.4
   
   theta <- c(alpha, beta, rho, gam)
   
@@ -70,7 +66,7 @@ for (i in time_start:time_end) {
   result_dyna <- solnp(pars = theta, fun = football_lik, eqfun = equal,
                        eqB = length(teams), LB = c(rep(0, (length(theta)-1)), 1),
                        UB = rep(100, length(theta)),
-                       df = Match_data[ind,], teams = teams)
+                       df = Match_data[ind,], teams = teams, xi = 0.025)
   
   teamdf <- tibble(teams, result_dyna$pars[1:length(teams)], result_dyna$pars[(length(teams)+1):(2*length(teams))])
   colnames(teamdf) = c("Team", "Alpha", "Beta")
@@ -99,8 +95,8 @@ save(Alpha_beta_df, file = "ParameterData/Alpha_beta_df.Rdata")
 # Rho/gamma ---------------------------------------------------------------
 
 Rho_lambda_df <- tibble("Time" = time_start:time_end) %>%        # I know the name here is lambda, and I don't really care for now....
-  bind_cols(read_csv("ParameterData/HomeAdvantage.csv")) %>%
-  bind_cols(read_csv("ParameterData/rho.csv")) %>%
+  bind_cols(read_csv("ParameterData/HomeAdvantage.csv", col_names = FALSE)) %>%
+  bind_cols(read_csv("ParameterData/rho.csv", col_names = FALSE)) %>%
   gather("Parameter", "Value", 2:3)
 
 save(Rho_lambda_df, file = "ParameterData/Rho_Homeadvantage_df.Rdata")
