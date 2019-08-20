@@ -71,15 +71,72 @@ ManUtd %>%
   gather(Type, Value, 2:7) %>% 
   ggplot(aes(x = Time, y = Value, col = Type)) + geom_line()
 
-matches[["Man United"]][135:152,] %>% full_join(Dates) %>% arrange(Date) %>% na.omit() -> tester
+Dates <- ymd("2019-01-02"):ymd("2019-05-12") %>% 
+  as_date() %>% enframe(name = NULL) %>% 
+  bind_cols("Time" = round(seq(355.4286, 392.5714, length.out = 131), digits = 2))
+names(Dates) <- c("Date", "Time")
 
-tester %>% timetk::tk_xts(select = 2:8, date_var = Date)
+tester2 <- matches[["Man United"]][135:152,] %>% 
+  mutate(Time = round(Time, digits = 2)) %>% 
+  full_join(Dates) %>% 
+  arrange(Date)
 
+tester <- tester2 %>% 
+  full_join(ManUtd[297:334,], by = "Time") %>% 
+  arrange(Time) %>% 
+  select(Date, Alpha, Beta, MA10_Alpha, MA10_Beta, MA50_Alpha, MA50_Beta)
 
-dygraph(ManUtd) %>% 
-  dyAnnotation(108, text = "W", tooltip = "Win", attachAtBottom = TRUE) %>% 
-  dyAnnotation(120.57, text = "D", tooltip = "Draw", attachAtBottom = TRUE)
+for (i in 3:nrow(tester)) {
+  if (is.na(tester$Alpha[i])) {
+    tester$Alpha[i] <- tester$Alpha[i - 1]
+  } 
+  
+  if (is.na(tester$Beta[i])) {
+    tester$Beta[i] <- tester$Beta[i - 1]
+  }
+  
+  if (is.na(tester$MA10_Alpha[i])) {
+    tester$MA10_Alpha[i] <- tester$MA10_Alpha[i - 1]
+  }
+  
+  if (is.na(tester$MA10_Beta[i])) {
+    tester$MA10_Beta[i] <- tester$MA10_Beta[i - 1]
+  }
+  
+  if (is.na(tester$MA50_Alpha[i])) {
+    tester$MA50_Alpha[i] <- tester$MA50_Alpha[i - 1]
+  }
+  
+  if (is.na(tester$MA50_Beta[i])) {
+    tester$MA50_Beta[i] <- tester$MA50_Beta[i - 1]
+  }
+}
 
+dyg <- tester %>% na.omit() %>% timetk::tk_xts(select = 2:5, date_var = Date) %>% dygraph() %>% 
+  dyAnnotation("2019-01-13", text = "W", tooltip = "1359, Away, Win, 1-0", attachAtBottom = TRUE)
+
+dyg <- dyg %>% dyAnnotation("2019-01-19", text = "W", tooltip = "1364, Home, Win, 2-1", attachAtBottom = TRUE)
+
+matches[["Man United"]][138:152,] %>% nrow()
+
+for (i in 1:15) {
+  if(matches[["Man United"]][138:152,]$HomeTeam[i] == "Man United" & matches[["Man United"]][138:152,]$HomeGoals[i] > matches[["Man United"]][138:152,]$AwayGoals[i]){
+    dyg <- dyg %>% dyAnnotation(matches[["Man United"]][138:152,]$Date[i], text = "W", tooltip = paste(matches[["Man United"]][138:152,]$MatchID[i], ", Home Win, ", matches[["Man United"]][138:152,]$HomeGoals[i], "-", matches[["Man United"]][138:152,]$AwayGoals[i], sep = ""), attachAtBottom = TRUE)
+    print("Home Win")
+  } else if(matches[["Man United"]][138:152,]$AwayTeam[i] == "Man United" & matches[["Man United"]][138:152,]$HomeGoals[i] < matches[["Man United"]][138:152,]$AwayGoals[i]){
+    dyg <- dyg %>% dyAnnotation(matches[["Man United"]][138:152,]$Date[i], text = "W", tooltip = paste(matches[["Man United"]][138:152,]$MatchID[i], ", Away Win, ", matches[["Man United"]][138:152,]$HomeGoals[i], "-", matches[["Man United"]][138:152,]$AwayGoals[i], sep = ""), attachAtBottom = TRUE)
+    print("Away Win")
+  } else if(matches[["Man United"]][138:152,]$HomeTeam[i] == "Man United" & matches[["Man United"]][138:152,]$HomeGoals[i] < matches[["Man United"]][138:152,]$AwayGoals[i]){
+    dyg <- dyg %>% dyAnnotation(matches[["Man United"]][138:152,]$Date[i], text = "L", tooltip = paste(matches[["Man United"]][138:152,]$MatchID[i], ", Home Loss, ", matches[["Man United"]][138:152,]$HomeGoals[i], "-", matches[["Man United"]][138:152,]$AwayGoals[i], sep = ""), attachAtBottom = TRUE)
+    print("Home Loss")
+  } else if(matches[["Man United"]][138:152,]$AwayTeam[i] == "Man United" & matches[["Man United"]][138:152,]$HomeGoals[i] > matches[["Man United"]][138:152,]$AwayGoals[i]){
+    dyg <- dyg %>% dyAnnotation(matches[["Man United"]][138:152,]$Date[i], text = "L", tooltip = paste(matches[["Man United"]][138:152,]$MatchID[i], ", Away Loss, ", matches[["Man United"]][138:152,]$HomeGoals[i], "-", matches[["Man United"]][138:152,]$AwayGoals[i], sep = ""), attachAtBottom = TRUE)
+    print("Away Loss")
+  } else {
+    dyg <- dyg %>% dyAnnotation(matches[["Man United"]][138:152,]$Date[i], text = "D", tooltip = paste(matches[["Man United"]][138:152,]$MatchID[i], ", Draw, ", matches[["Man United"]][138:152,]$HomeGoals[i], "-", matches[["Man United"]][138:152,]$AwayGoals[i], sep = ""), attachAtBottom = TRUE)
+    print("Draw")
+  }
+}
 
 # Returns quick -----------------------------------------------------------
 
