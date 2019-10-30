@@ -10,7 +10,7 @@ Data downloaded from https://www.football-data.co.uk/
 
 ### Introduction to the Scripts
 - [*Create_data.R*](https://github.com/MoAnd/FootballBetting/blob/master/Create_data.R) is for collecting and assembling the match and betting data.
-- [*football_likelihood_func.R*](https://github.com/MoAnd/FootballBetting/blob/master/football_likelihood_func.R) & [*football_prob_func.R*](https://github.com/MoAnd/FootballBetting/blob/master/football_prob_func.R) are just functions to be source (the likelihood, helpers, and the score probability functions).
-- [*Optimization.R*](https://github.com/MoAnd/FootballBetting/blob/master/Optimization.R) is for running the optimization of the likelihood function, i.e. finding the team parameters. 
+- [*football_likelihood_func.R*](https://github.com/MoAnd/FootballBetting/blob/master/football_likelihood_func.R) & [*football_prob_func.R*](https://github.com/MoAnd/FootballBetting/blob/master/football_prob_func.R) are just functions to be sourced (the likelihood, helpers, and the score probability functions).
+- [*Optimization.R*](https://github.com/MoAnd/FootballBetting/blob/master/Optimization.R) is for running the optimization procedure of the likelihood function, i.e. finding the team parameters. 
 - [*Xi_testing.R*](https://github.com/MoAnd/FootballBetting/blob/master/Xi_testing.R) is a (very slow) script to test different values of the xi parameter.
-- [*Betting_backtesting.R*](https://github.com/MoAnd/FootballBetting/blob/master/Betting_backtesting.R) is the actual backtesting on the betting strategy using the parameters found in the maximazation of the likelihood.
+- [*Betting_backtesting.R*](https://github.com/MoAnd/FootballBetting/blob/master/Betting_backtesting.R) is the actual backtesting of the betting strategy using the parameters found in the maximazation of the likelihood.
